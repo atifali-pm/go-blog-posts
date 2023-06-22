@@ -19,6 +19,10 @@ func main() {
 		panic(err)
 	}
 
+	if err := models.MigratePost(db); err != nil {
+		panic(err)
+	}
+
 	r := gin.Default()
 
 	r.Use(func(c *gin.Context) {
