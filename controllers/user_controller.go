@@ -30,3 +30,21 @@ func ListUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 
 }
+
+func CreateUser(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.Create(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, user)
+
+}
