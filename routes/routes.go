@@ -15,11 +15,18 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		c.Next()
 	})
 
-	v1 := r.Group("/api/v1")
+	user := r.Group("/api/v1")
 	{
-		v1.GET("/users", controllers.ListUsers)
-		v1.POST("/users", controllers.CreateUser)
-		v1.GET("/posts", controllers.ListPosts)
+		user.GET("/users", controllers.ListUsers)
+		user.GET("/users/:user_id", controllers.GetUser)
+		user.POST("/users", controllers.CreateUser)
+		user.PUT("/users/:user_id", controllers.UpdateUser)
+		user.DELETE("/users/:user_id", controllers.DeleteUser)
+	}
+
+	post := r.Group("/api/v1")
+	{
+		post.GET("/posts", controllers.ListPosts)
 	}
 
 	return r

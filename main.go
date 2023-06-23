@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/atifali-pm/go-blog-posts/config"
 	"github.com/atifali-pm/go-blog-posts/models"
 	"github.com/atifali-pm/go-blog-posts/routes"
@@ -13,13 +15,7 @@ func main() {
 		panic(err)
 	}
 
-	// defer db.Close()
-
-	if err := models.MigrateUser(db); err != nil {
-		panic(err)
-	}
-
-	if err := models.MigratePost(db); err != nil {
+	if err := models.Migrate(db); err != nil {
 		panic(err)
 	}
 
@@ -31,5 +27,19 @@ func main() {
 	})
 
 	router := routes.SetupRoutes(db)
+
+	// Custom 404 handler
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusNotFound,
+				"error":      true,
+				"error_type": "product_not_found",
+				"text":       "Product not found",
+			},
+			"body": nil,
+		})
+	})
+
 	router.Run(":8000")
 }

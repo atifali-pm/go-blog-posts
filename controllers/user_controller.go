@@ -31,6 +31,29 @@ func ListUsers(c *gin.Context) {
 
 }
 
+func GetUser(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+
+	id, _ := strconv.Atoi(c.Param("user_id"))
+
+	var user models.User
+
+	if err := db.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusNotFound,
+				"error":      true,
+				"error_type": "user_not_found",
+				"text":       "User not found",
+			},
+			"body": nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
 func CreateUser(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 
@@ -41,10 +64,72 @@ func CreateUser(c *gin.Context) {
 	}
 
 	if err := db.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusBadRequest,
+				"error":      true,
+				"error_type": "user_not_created",
+				"text":       "User not created",
+			},
+			"body": nil,
+		})
 		return
 	}
 
 	c.JSON(http.StatusCreated, user)
 
+}
+
+func UpdateUser(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id, _ := strconv.Atoi(c.Param("user_id"))
+
+	var user models.User
+
+	if err := db.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusNotFound,
+				"error":      true,
+				"error_type": "user_not_found",
+				"text":       "User not found",
+			},
+			"body": nil,
+		})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db.Save(&user)
+
+	c.JSON(http.StatusOK, user)
+
+}
+
+func DeleteUser(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id, _ := strconv.Atoi(c.Param("user_id"))
+
+	var user models.User
+
+	if err := db.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusNotFound,
+				"error":      true,
+				"error_type": "user_not_found",
+				"text":       "User not found",
+			},
+			"body": nil,
+		})
+		return
+	}
+
+	db.Delete(&user)
+
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
