@@ -26,7 +26,11 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 
 	post := r.Group("/api/v1")
 	{
-		post.GET("/posts", controllers.ListPosts)
+		post.GET("/posts", controllers.GetPosts)
+		post.GET("/posts/:post_id", controllers.GetPost)
+		post.POST("/posts", controllers.CreatePost)
+		post.PUT("/posts/:post_id", controllers.UpdatePost)
+		post.DELETE("/posts/:post_id", controllers.DeletePost)
 	}
 
 	return r

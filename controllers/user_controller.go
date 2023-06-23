@@ -22,10 +22,28 @@ func ListUsers(c *gin.Context) {
 	db.Offset(offset).Limit(limit).Order("first_name").Find(&users)
 	db.Model(&models.User{}).Count(&total)
 
+	// Fetch posts for each user
+	for i := range users {
+		var posts []models.Post
+		db.Model(&users[i]).Association("Posts").Find(&posts)
+		users[i].Posts = posts
+	}
+
 	meta := helpers.GeneratePaginationMeta(page, limit, offset, int(total))
 	links := helpers.GeneratePaginationLinks(c.Request, meta.LastPage, page)
 
-	response := helpers.GenerateListResponse(users, meta, links)
+	response := gin.H{
+		"body": gin.H{
+			"users": users,
+		},
+		"status": gin.H{
+			"code":  http.StatusOK,
+			"error": false,
+			"text":  "success",
+		},
+		"meta":  meta,
+		"links": links,
+	}
 
 	c.JSON(http.StatusOK, response)
 
@@ -51,7 +69,30 @@ func GetUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	var posts []models.Post
+	db.Model(&user).Association("Posts").Find(&posts)
+
+	// Create a separate struct for the response body
+	type UserPostsBody struct {
+		User  models.User   `json:"user"`
+		Posts []models.Post `json:"posts"`
+	}
+
+	// Create the response object
+	response := gin.H{
+		"status": gin.H{
+			"code":  http.StatusOK,
+			"error": false,
+			"text":  "success",
+		},
+		"body": UserPostsBody{
+			User:  user,
+			Posts: posts,
+		},
+	}
+
+	c.JSON(http.StatusOK, response)
+
 }
 
 func CreateUser(c *gin.Context) {
@@ -106,7 +147,17 @@ func UpdateUser(c *gin.Context) {
 
 	db.Save(&user)
 
-	c.JSON(http.StatusOK, user)
+	// Create the response object
+	response := gin.H{
+		"status": gin.H{
+			"code":  http.StatusOK,
+			"error": false,
+			"text":  "success",
+		},
+		"body": user,
+	}
+
+	c.JSON(http.StatusOK, response)
 
 }
 
