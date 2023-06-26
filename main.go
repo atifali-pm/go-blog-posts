@@ -1,15 +1,30 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/atifali-pm/go-blog-posts/config"
 	"github.com/atifali-pm/go-blog-posts/models"
 	"github.com/atifali-pm/go-blog-posts/routes"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		log.Fatal("Invalid port number")
+	}
+
 	db, err := config.SetupDB()
 	if err != nil {
 		panic(err)
@@ -41,5 +56,5 @@ func main() {
 		})
 	})
 
-	router.Run(":8000")
+	router.Run(":" + strconv.Itoa(port))
 }

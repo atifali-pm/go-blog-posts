@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/atifali-pm/go-blog-posts/controllers"
+	"github.com/atifali-pm/go-blog-posts/middlewares"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -25,6 +26,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	}
 
 	post := r.Group("/api/v1")
+	post.Use(middlewares.JWTMiddleware())
 	{
 		post.GET("/posts", controllers.GetPosts)
 		post.GET("/posts/:post_id", controllers.GetPost)
