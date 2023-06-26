@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 type User struct {
 	ID        uint      `gorm:"primary_key" json:"id"`
@@ -13,4 +17,15 @@ type User struct {
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 	Posts     []Post    `json:"posts"`
+}
+
+func (u *User) SetPassword(password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return err
+	}
+
+	u.Password = string(hashedPassword)
+	return nil
 }

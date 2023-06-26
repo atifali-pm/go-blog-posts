@@ -23,6 +23,8 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		user.POST("/users", controllers.CreateUser)
 		user.PUT("/users/:user_id", controllers.UpdateUser)
 		user.DELETE("/users/:user_id", controllers.DeleteUser)
+		user.POST("/users/signup", controllers.Signup)
+		user.POST("/users/login", controllers.Login)
 	}
 
 	post := r.Group("/api/v1")
