@@ -126,6 +126,78 @@ func CreateReview(c *gin.Context) {
 	c.JSON(http.StatusCreated, review)
 }
 
+func UpdateReview(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id, _ := strconv.Atoi(c.Param("review_id"))
+
+	var review models.Review
+
+	if err := db.First(&review, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusNotFound,
+				"error":      true,
+				"error_type": "review_not_found",
+				"text":       "Review not found",
+			},
+			"body": nil,
+		})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&review); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db.Save(&review)
+
+	response := gin.H{
+		"status": gin.H{
+			"code":  http.StatusOK,
+			"error": false,
+			"text":  "success",
+		},
+		"body": review,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func DeleteReview(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id, _ := strconv.Atoi(c.Param("review_id"))
+
+	var review models.Review
+
+	if err := db.First(&review, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": gin.H{
+				"code":       http.StatusNotFound,
+				"error":      true,
+				"error_type": "review_not_found",
+				"text":       "Review not found",
+			},
+			"body": nil,
+		})
+		return
+	}
+
+	db.Delete(&review)
+
+	// Create the response object
+	response := gin.H{
+		"status": gin.H{
+			"code":  http.StatusOK,
+			"error": false,
+			"text":  "success",
+		},
+		"body": review,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 type ReviewBodyResponse struct {
 	Review models.ReviewResponse `json:"review"`
 	Post   models.PostResponse   `json:"post"`

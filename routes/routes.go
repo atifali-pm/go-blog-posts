@@ -43,8 +43,8 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		review.GET("/reviews", controllers.GetReviews)
 		review.POST("/reviews", controllers.CreateReview)
 		review.GET("/reviews/:review_id", controllers.GetReview)
-		// post.PUT("/posts/:post_id", controllers.UpdatePost)
-		// post.DELETE("/posts/:post_id", controllers.DeletePost)
+		review.PUT("/reviews/:review_id", controllers.UpdateReview)
+		review.DELETE("/reviews/:review_id", controllers.DeleteReview)
 	}
 
 	return r
