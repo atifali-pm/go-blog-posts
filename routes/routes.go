@@ -37,5 +37,15 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		post.DELETE("/posts/:post_id", controllers.DeletePost)
 	}
 
+	review := r.Group("/api/v1")
+	review.Use(middlewares.JWTMiddleware())
+	{
+		review.GET("/reviews", controllers.GetReviews)
+		review.POST("/reviews", controllers.CreateReview)
+		review.GET("/reviews/:review_id", controllers.GetReview)
+		// post.PUT("/posts/:post_id", controllers.UpdatePost)
+		// post.DELETE("/posts/:post_id", controllers.DeletePost)
+	}
+
 	return r
 }

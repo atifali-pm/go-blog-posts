@@ -31,6 +31,11 @@ func ListUsers(c *gin.Context) {
 		var posts []models.Post
 		db.Model(&users[i]).Association("Posts").Find(&posts)
 		users[i].Posts = posts
+
+		var reviews []models.Review
+		db.Model(&users[i]).Association("Reviews").Find(&reviews)
+		users[i].Reviews = reviews
+
 	}
 
 	meta := helpers.GeneratePaginationMeta(page, limit, offset, int(total))
@@ -76,10 +81,14 @@ func GetUser(c *gin.Context) {
 	var posts []models.Post
 	db.Model(&user).Association("Posts").Find(&posts)
 
+	var reviews []models.Review
+	db.Model(&user).Association("Reviews").Find(&reviews)
+
 	// Create a separate struct for the response body
 	type UserPostsBody struct {
-		User  models.User   `json:"user"`
-		Posts []models.Post `json:"posts"`
+		User    models.User     `json:"user"`
+		Posts   []models.Post   `json:"posts"`
+		Reviews []models.Review `json:"reviews"`
 	}
 
 	// Create the response object
@@ -90,8 +99,9 @@ func GetUser(c *gin.Context) {
 			"text":  "success",
 		},
 		"body": UserPostsBody{
-			User:  user,
-			Posts: posts,
+			User:    user,
+			Posts:   posts,
+			Reviews: reviews,
 		},
 	}
 

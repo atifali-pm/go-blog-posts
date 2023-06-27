@@ -67,12 +67,17 @@ func GetPost(c *gin.Context) {
 		return
 	}
 
-	var users []models.User
-	db.Model(&post).Association("User").Find(&users)
+	var user models.User
+	db.Model(&post).Association("User").Find(&user)
+
+	var reviews []models.Review
+	db.Model(&post).Association("Review").Find(&reviews)
 
 	// Create a separate struct for the response body
 	type UserPostsBody struct {
-		Post models.Post `json:"post"`
+		Post   models.Post     `json:"posts"`
+		User   models.User     `json:"user"`
+		Review []models.Review `json:"reviews"`
 	}
 
 	// Create the response object
@@ -83,7 +88,9 @@ func GetPost(c *gin.Context) {
 			"text":  "success",
 		},
 		"body": UserPostsBody{
-			Post: post,
+			Post:   post,
+			User:   user,
+			Review: reviews,
 		},
 	}
 
